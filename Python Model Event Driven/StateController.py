@@ -1,8 +1,11 @@
 from tkinter import *
+
+from std_msgs.msg import Int32
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from model.Publisher import Publisher
+from model.IntPublisher import IntPublisher
 from std_msgs.msg import String
 class Window(Frame):
 
@@ -19,7 +22,7 @@ class Window(Frame):
 
 # experiment
 
-
+    
 
     def __init__(self, master=None):
         Frame.__init__(self, master)        
@@ -38,6 +41,8 @@ class Window(Frame):
 
         dispatchButton = Button(self, text="Dispatch", command=self.clickDispatchButton)
         recallButton = Button(self, text="Recall", command=self.clickRecallButton)
+
+        addAgentButton = Button(self, text="Add Agent", command=self.clickAddAgentButton)
         # place button at (0,0)
         setupStartButton.place(x=100, y=0)
      #   sheepSetupLoopButton.place(x=100, y = 50)
@@ -48,11 +53,16 @@ class Window(Frame):
 
         dispatchButton.place(x=100, y=250)
         recallButton.place(x=200, y=250)
+        addAgentButton.place(x=200, y = 300)
         # define command publisher
         commandListenerTopicName = "/controller/command"
         dispatchListenerTopicName = "/controller/dispatch"
+        agentListenerTopicName = "/global/robots/added"
         self.statePublisher = Publisher(commandListenerTopicName) 
         self.dispatchPublisher = Publisher(dispatchListenerTopicName)
+        self.agentPublisher = IntPublisher(agentListenerTopicName)
+
+        self.i = 0
 
     def clickSetupStartButton(self):
 
@@ -64,6 +74,19 @@ class Window(Frame):
 
 
         print(msg)
+
+    def clickAddAgentButton(self):
+        msg = Int32()
+        msg.data = self.i
+        self.i += 1
+
+        
+        self.agentPublisher.pub.publish(msg)
+
+
+        print(msg)
+
+
     def clickSheepSetupLoopButton(self):
 
         msg = String()
@@ -139,7 +162,7 @@ rclpy.init(args=None)
 root = Tk()
 app = Window(root)
 root.wm_title("Tkinter button")
-root.geometry("320x320")
+root.geometry("320x400")
 root.mainloop()
 
     
